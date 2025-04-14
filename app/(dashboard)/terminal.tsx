@@ -1,31 +1,30 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Download, Heart, MessageCircle, Share2 } from 'lucide-react';
+import { Download, Heart, MessageCircle, Share2, Sparkles } from 'lucide-react';
+import Image from 'next/image';
 
 export function Terminal() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState([false, false, false]);
   const examples = [
     {
-      title: "秋日穿搭指南",
-      desc: "10件单品轻松搭配",
-      bgGradient: "from-orange-100 to-yellow-100",
-      textGradient: "from-orange-500 to-red-500",
-      textColor: "text-orange-500"
+      title: "今天天气真不错",
+      image: "/examples/cover1.png",
+      likes: 312,
+      comments: 56
     },
     {
-      title: "巴黎旅行必去景点",
-      desc: "不出国也能感受法式浪漫",
-      bgGradient: "from-blue-100 to-purple-100",
-      textGradient: "from-blue-500 to-purple-500",
-      textColor: "text-blue-500"
+      title: "约会拍照技巧",
+      image: "/examples/cover2.png",
+      likes: 289,
+      comments: 42
     },
     {
-      title: "家居布置小技巧",
-      desc: "让你的小家温馨又时尚",
-      bgGradient: "from-green-100 to-teal-100",
-      textGradient: "from-green-500 to-teal-500",
-      textColor: "text-green-500"
+      title: "深圳领取失业金",
+      image: "/examples/cover3.png",
+      likes: 176,
+      comments: 38
     }
   ];
 
@@ -37,70 +36,90 @@ export function Terminal() {
     return () => clearInterval(timer);
   }, []);
 
+  const handleImageLoad = (index: number) => {
+    setImagesLoaded(prev => {
+      const newState = [...prev];
+      newState[index] = true;
+      return newState;
+    });
+  };
+
   return (
-    <div className="w-full rounded-2xl shadow-2xl overflow-hidden bg-white relative">
+    <div className="w-full h-full overflow-hidden relative">
       {/* 小红书风格的顶部栏 */}
-      <div className="bg-white h-12 border-b flex items-center px-4">
-        <div className="flex items-center space-x-2">
-          <div className="w-3 h-3 rounded-full bg-red-500"></div>
-          <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-          <div className="w-3 h-3 rounded-full bg-green-500"></div>
-        </div>
-        <div className="text-pink-500 text-sm font-medium mx-auto flex items-center">
-          <svg className="h-5 w-5 mr-1" viewBox="0 0 24 24" fill="currentColor">
+      <div className="mt-5 bg-white h-10 border-b flex items-center px-3">
+        <div className="text-pink-500 text-xs font-medium mx-auto flex items-center">
+          <svg className="h-4 w-4 mr-1" viewBox="0 0 24 24" fill="currentColor">
             <path d="M20.07 6.35H15.3V3.62c0-.35-.29-.64-.64-.64H9.69c-.35 0-.64.29-.64.64v2.73H4.29c-.35 0-.64.29-.64.64v9.56c0 2.76 2.24 5 5 5h7.07c2.76 0 5-2.24 5-5V6.99c0-.35-.29-.64-.65-.64zm-5.42 0H9.69V4.27h4.96v2.08z" />
           </svg>
           小红书
         </div>
       </div>
       
-      <div className="relative pt-2">
+      <div className="relative flex justify-center">
         {examples.map((example, index) => (
           <div
             key={index}
             className={`transition-all duration-500 transform ${
-              index === activeIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-95 absolute top-2 left-0 w-full'
+              index === activeIndex ? 'opacity-100 scale-100' : 'opacity-0 scale-95 absolute top-0 left-0 right-0 mx-auto'
             }`}
             style={{ display: index === activeIndex ? 'block' : 'none' }}
           >
-            {/* 封面内容区域 */}
-            <div className={`relative aspect-[4/3] bg-gradient-to-br ${example.bgGradient}`}>
-              {/* 装饰元素 - 圆点 */}
-              <div className="absolute top-4 right-4 w-20 h-20 rounded-full bg-white opacity-10"></div>
-              <div className="absolute bottom-10 left-6 w-12 h-12 rounded-full bg-white opacity-10"></div>
-              
-              {/* 封面文字 */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <div className={`bg-gradient-to-r ${example.textGradient} text-transparent bg-clip-text font-bold text-3xl px-6 text-center mb-2 leading-tight`}>
-                  {example.title}
+            {/* 封面内容区域 - 使用实际图片，调整为竖版比例，贴合手机屏幕尺寸 */}
+            <div className="relative w-full bg-pink-50">
+              <div className="aspect-[43/88]">
+                {!imagesLoaded[index] && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <Sparkles className="h-8 w-8 text-pink-400 animate-pulse mb-2" />
+                    <span className="text-sm text-pink-500">AI生成图片中...</span>
+                  </div>
+                )}
+                
+                <div className="absolute inset-0">
+                  <Image 
+                    src={example.image} 
+                    alt={example.title}
+                    fill
+                    className={`object-cover transition-opacity duration-300 ${imagesLoaded[index] ? 'opacity-100' : 'opacity-0'}`}
+                    priority={index === 0}
+                    onLoad={() => handleImageLoad(index)}
+                  />
                 </div>
-                <div className={`${example.textColor} text-xl px-4 text-center`}>
-                  {example.desc}
+                
+                {/* 输入提示覆盖在图片上 */}
+                <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-sm rounded-lg px-3 py-2 text-white text-xs z-10">
+                  <span className="font-medium">提示词:</span> {example.title}
+                </div>
+                
+                {/* AI生成标识 */}
+                <div className="absolute bottom-2 right-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs rounded-full px-3 py-1 flex items-center z-10">
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  AI生成
                 </div>
               </div>
             </div>
             
             {/* 底部互动区域 */}
-            <div className="p-4 bg-white">
+            <div className="p-3 bg-white w-full">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-1">
-                  <div className="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center">
-                    <span className="text-xs font-medium text-pink-500">AI</span>
+                  <div className="w-6 h-6 rounded-full bg-pink-100 flex items-center justify-center">
+                    <span className="text-[10px] font-medium text-pink-500">AI</span>
                   </div>
-                  <span className="text-sm font-medium text-gray-900">AI封面设计</span>
+                  <span className="text-xs font-medium text-gray-900">AI封面设计 </span>
                 </div>
                 
                 <div className="flex items-center space-x-3">
                   <div className="flex items-center text-gray-500">
-                    <Heart className="h-4 w-4" />
-                    <span className="text-xs ml-1">289</span>
+                    <Heart className="h-3 w-3" />
+                    <span className="text-[10px] ml-1">{example.likes}</span>
                   </div>
                   <div className="flex items-center text-gray-500">
-                    <MessageCircle className="h-4 w-4" />
-                    <span className="text-xs ml-1">42</span>
+                    <MessageCircle className="h-3 w-3" />
+                    <span className="text-[10px] ml-1">{example.comments}</span>
                   </div>
                   <div className="flex items-center text-gray-500">
-                    <Share2 className="h-4 w-4" />
+                    <Share2 className="h-3 w-3" />
                   </div>
                 </div>
               </div>
@@ -110,12 +129,12 @@ export function Terminal() {
       </div>
       
       {/* 底部指示器 */}
-      <div className="absolute bottom-16 left-0 right-0 flex justify-center space-x-2">
+      <div className="absolute bottom-14 left-0 right-0 flex justify-center space-x-2">
         {examples.map((_, index) => (
           <button
             key={index}
             onClick={() => setActiveIndex(index)}
-            className={`w-2 h-2 rounded-full transition-colors ${
+            className={`w-1.5 h-1.5 rounded-full transition-colors ${
               index === activeIndex ? 'bg-pink-500' : 'bg-gray-300'
             }`}
             aria-label={`切换到示例 ${index + 1}`}

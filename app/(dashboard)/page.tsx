@@ -7,8 +7,8 @@ export default function HomePage() {
     <main>
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="lg:grid lg:grid-cols-12 lg:gap-8">
-            <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left">
+          <div className="lg:grid lg:grid-cols-12 lg:gap-12">
+            <div className="sm:text-center md:max-w-2xl md:mx-auto lg:col-span-6 lg:text-left lg:self-center">
               <h1 className="text-4xl font-bold text-gray-900 tracking-tight sm:text-5xl md:text-6xl">
                 小红书封面
                 <span className="block text-pink-500">一键生成</span>
@@ -28,34 +28,29 @@ export default function HomePage() {
                 </a>
               </div>
             </div>
-            <div className="mt-12 relative sm:max-w-lg sm:mx-auto lg:mt-0 lg:max-w-none lg:mx-0 lg:col-span-6 lg:flex lg:items-center">
+            <div className="mt-16 relative sm:max-w-lg sm:mx-auto lg:mt-0 lg:max-w-none lg:mx-0 lg:col-span-6 lg:flex lg:items-center lg:justify-center">
               <div className="absolute -top-10 -right-10 w-40 h-40 bg-pink-100 rounded-full opacity-50 blur-xl"></div>
               <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-purple-100 rounded-full opacity-50 blur-xl"></div>
               
-              <div className="relative w-full z-10">
-                <div className="absolute -top-5 -left-2 bg-white rounded-lg shadow-sm p-2 rotate-6 z-10">
-                  <div className="text-xs font-medium text-pink-500 flex items-center space-x-1">
-                    <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M20.07 6.35H15.3V3.62c0-.35-.29-.64-.64-.64H9.69c-.35 0-.64.29-.64.64v2.73H4.29c-.35 0-.64.29-.64.64v9.56c0 2.76 2.24 5 5 5h7.07c2.76 0 5-2.24 5-5V6.99c0-.35-.29-.64-.65-.64zm-5.42 0H9.69V4.27h4.96v2.08z" />
-                    </svg>
-                    <span>种草笔记</span>
+              <div className="relative w-[270px] h-[560px] bg-gray-800 rounded-[32px] p-3 shadow-xl">
+                <div className="absolute top-3 left-0 right-0 mx-auto w-32 h-6 bg-black rounded-b-xl z-10"></div>
+                
+                <div className="relative w-full h-full bg-white rounded-[24px] overflow-hidden">
+                  <div className="absolute top-105 left-2 bg-white rounded-lg shadow-sm p-2 rotate-6 z-10">
+                    <div className="text-xs font-medium text-pink-500 flex items-center space-x-1">
+                      <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.07 6.35H15.3V3.62c0-.35-.29-.64-.64-.64H9.69c-.35 0-.64.29-.64.64v2.73H4.29c-.35 0-.64.29-.64.64v9.56c0 2.76 2.24 5 5 5h7.07c2.76 0 5-2.24 5-5V6.99c0-.35-.29-.64-.65-.64zm-5.42 0H9.69V4.27h4.96v2.08z" />
+                      </svg>
+                      <span>种草笔记</span>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="absolute top-10 -right-2 bg-pink-50 rounded-full shadow-sm px-3 py-1 -rotate-3 z-10">
-                  <div className="text-xs font-medium text-pink-500"># 精选封面</div>
-                </div>
-                
-                <div className="absolute -bottom-4 right-8 bg-white rounded-lg shadow-sm p-2 rotate-3 z-10">
-                  <div className="text-xs font-medium text-pink-500 flex items-center">
-                    <svg className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16zM2 12C2 6.48 6.48 2 12 2s10 4.48 10 10-4.48 10-10 10S2 17.52 2 12zm10-5a1 1 0 0 1 1 1v4.59l2.7 2.7a1 1 0 1 1-1.4 1.42l-3-3A1 1 0 0 1 11 13V8a1 1 0 0 1 1-1z" />
-                    </svg>
-                    刚刚更新
+                  
+                  <div className="absolute top-25 right-2 bg-pink-50 rounded-full shadow-sm px-3 py-1 -rotate-3 z-10">
+                    <div className="text-xs font-medium text-pink-500"># 精选封面</div>
                   </div>
+                  
+                  <Terminal />
                 </div>
-                
-                <Terminal />
               </div>
             </div>
           </div>
