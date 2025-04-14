@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
 
                 字体可以比预输出的结果中稍小一点点，这样不会导致最后一个字换行。
                 使用一些好看的字体，不要使用默认字体，建议使用在线字体。
+                emoji 需指定 font-family: 'Noto Color Emoji', 'Segoe UI Emoji' sans-serif; 
                 
                 不需要添加其他文字进行修饰。
                 记得重置浏览器默认样式。
@@ -109,7 +110,7 @@ export async function POST(request: NextRequest) {
 
     // 使用Puppeteer渲染并截图
     const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--font-render-hinting=none'],
       headless: true
     });
     
