@@ -10,7 +10,7 @@ import Image from 'next/image';
 interface GenerateResult {
   success: boolean;
   coverUrl: string;
-  title: string;
+  title?: string;
   description: string;
   timestamp: string;
 }
@@ -36,7 +36,7 @@ export default function GeneratePage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ title, description }),
+        body: JSON.stringify({ description }),
       });
       
       const data = await response.json();
@@ -58,6 +58,37 @@ export default function GeneratePage() {
     handleSubmit(new Event('submit') as unknown as React.FormEvent<HTMLFormElement>);
   };
 
+  const handleDownload = async () => {
+    if (!result?.coverUrl) return;
+    
+    try {
+      // 获取图片
+      const response = await fetch(result.coverUrl);
+      const blob = await response.blob();
+      
+      // 创建下载链接
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      
+      // 提取文件名
+      const filename = result.coverUrl.split('/').pop() || '小红书封面.png';
+      a.download = filename;
+      
+      // 添加到DOM并触发下载
+      document.body.appendChild(a);
+      a.click();
+      
+      // 清理
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error('下载失败:', err);
+      setError('图片下载失败，请稍后重试');
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
       <div className="text-center mb-8">
@@ -71,21 +102,21 @@ export default function GeneratePage() {
         <CardHeader>
           <CardTitle>封面内容</CardTitle>
           <CardDescription>
-            请描述您想要在封面中展示的内容，越详细越好
+            请描述您想要在封面中展示的内容
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent>
             <div className="space-y-4">
-              <Input
+              {/* <Input
                 placeholder="标题（可选）"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full"
                 disabled={isLoading}
-              />
+              /> */}
               <textarea
-                placeholder="例如：'极简风格的咖啡店，温暖的灯光下，一杯拉花咖啡放在木质桌面上，旁边散落着一些咖啡豆，整体色调温暖'"
+                placeholder="例如：'今天天气真好'"
                 className="w-full min-h-32 resize-none rounded-md border border-input p-3 text-sm"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -96,9 +127,7 @@ export default function GeneratePage() {
             <div className="mt-4 space-y-2">
               <p className="text-sm text-gray-500">提示：</p>
               <ul className="text-sm text-gray-500 space-y-1 list-disc list-inside">
-                <li>详细描述想要的风格、色调和元素</li>
-                <li>包含关键词能提高生成效果</li>
-                <li>可以指定文字布局和图片结构</li>
+                <li>直接输入您想要展示的文字内容，例如：'今天天气真好'</li>
               </ul>
             </div>
           </CardContent>
@@ -148,21 +177,17 @@ export default function GeneratePage() {
                     <img 
                       src={result.coverUrl}
                       alt="小红书封面图片" 
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                     />
                   </div>
                 </div>
                 <div className="md:w-1/2 space-y-4">
                   <div>
-                    <h3 className="text-lg font-medium">标题</h3>
-                    <p className="text-gray-700">{result.title}</p>
-                  </div>
-                  <div>
                     <h3 className="text-lg font-medium">描述</h3>
                     <p className="text-gray-700">{result.description}</p>
                   </div>
                   <div className="flex gap-3 pt-4">
-                    <Button className="bg-pink-500 hover:bg-pink-600">
+                    <Button className="bg-pink-500 hover:bg-pink-600" onClick={handleDownload}>
                       <Download className="mr-2 h-4 w-4" />
                       下载图片
                     </Button>
