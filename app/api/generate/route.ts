@@ -55,8 +55,9 @@ export async function POST(request: NextRequest) {
                   z-index 确保背景位于文字下方。
                   效果：文字“懒木头”带有浅蓝色涂画背景，其他文字保持正常，整体设计简洁且具有小红书风格。
 
+                中文字体使用 font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
                 字体可以比预输出的结果中稍小一点点，这样不会导致最后一个字换行。
-                使用一些好看的字体，不要使用默认字体，建议使用在线字体。
+                可以使用一些好看的字体，不要使用默认字体。
                 emoji 需指定 font-family: 'Noto Color Emoji', 'Segoe UI Emoji' sans-serif; 
                 记得重置浏览器默认样式。
                 返回 HTML 代码即可，不要包含其他内容。
@@ -111,12 +112,12 @@ export async function POST(request: NextRequest) {
         html += fontLoadScript;
       }
     }
-
+    
     console.log(html);
 
     // 使用Puppeteer渲染并截图
     const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--font-render-hinting=none'],
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--font-render-hinting=none', '--lang=zh-CN,zh'],
       headless: true
     });
     
