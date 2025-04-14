@@ -4,12 +4,23 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Download, Share2, RefreshCcw } from 'lucide-react';
+import Image from 'next/image';
+
+interface GenerateResult {
+  success: boolean;
+  coverUrl: string;
+  title: string;
+  description: string;
+  timestamp: string;
+}
 
 export default function GeneratePage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<GenerateResult | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -17,12 +28,34 @@ export default function GeneratePage() {
     if (!description.trim()) return;
     
     setIsLoading(true);
-    // 这里将来会添加生成图片的API调用
-    // 目前只是模拟加载状态
-    setTimeout(() => {
+    setError(null);
+    
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ title, description }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || '生成过程中出现错误');
+      }
+      
+      setResult(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '生成失败，请稍后再试');
+    } finally {
       setIsLoading(false);
-      // 处理生成结果
-    }, 2000);
+    }
+  };
+
+  const handleRegenerate = () => {
+    // 直接触发表单提交
+    handleSubmit(new Event('submit') as unknown as React.FormEvent<HTMLFormElement>);
   };
 
   return (
@@ -49,6 +82,7 @@ export default function GeneratePage() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full"
+                disabled={isLoading}
               />
               <textarea
                 placeholder="例如：'极简风格的咖啡店，温暖的灯光下，一杯拉花咖啡放在木质桌面上，旁边散落着一些咖啡豆，整体色调温暖'"
@@ -56,6 +90,7 @@ export default function GeneratePage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 required
+                disabled={isLoading}
               />
             </div>
             <div className="mt-4 space-y-2">
@@ -89,10 +124,63 @@ export default function GeneratePage() {
         </form>
       </Card>
 
-      {/* 未来会在这里展示生成结果 */}
-      <div className="mt-8" id="result">
-        {/* 生成结果将显示在这里 */}
-      </div>
+      {/* 生成结果显示 */}
+      {error && (
+        <div className="mt-8 p-4 bg-red-50 border border-red-200 rounded-md text-red-600">
+          {error}
+        </div>
+      )}
+      
+      {result && (
+        <div className="mt-8" id="result">
+          <Card>
+            <CardHeader>
+              <CardTitle>生成结果</CardTitle>
+              <CardDescription>
+                生成时间: {new Date(result.timestamp).toLocaleString('zh-CN')}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col md:flex-row gap-6">
+                <div className="md:w-1/2 relative">
+                  <div className="aspect-square relative rounded-md overflow-hidden shadow-md">
+                    {/* 使用Image组件替代img以获得更好的性能 */}
+                    <img 
+                      src={result.coverUrl}
+                      alt="小红书封面图片" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+                <div className="md:w-1/2 space-y-4">
+                  <div>
+                    <h3 className="text-lg font-medium">标题</h3>
+                    <p className="text-gray-700">{result.title}</p>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium">描述</h3>
+                    <p className="text-gray-700">{result.description}</p>
+                  </div>
+                  <div className="flex gap-3 pt-4">
+                    <Button className="bg-pink-500 hover:bg-pink-600">
+                      <Download className="mr-2 h-4 w-4" />
+                      下载图片
+                    </Button>
+                    <Button variant="outline" className="border-pink-500 text-pink-500 hover:bg-pink-50">
+                      <Share2 className="mr-2 h-4 w-4" />
+                      分享
+                    </Button>
+                    <Button variant="outline" onClick={handleRegenerate} disabled={isLoading}>
+                      <RefreshCcw className="mr-2 h-4 w-4" />
+                      重新生成
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 } 
