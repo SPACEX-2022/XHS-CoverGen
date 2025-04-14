@@ -1,0 +1,109 @@
+name: 部署到腾讯云服务器
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 签出代码
+        uses: actions/checkout@v4
+
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 安装PNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+
+      - name: 获取PNPM缓存目录
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: 设置PNPM缓存
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: 安装依赖
+        run: pnpm install
+
+      - name: 构建项目
+        run: pnpm build
+        env:
+          # 添加你的环境变量
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+
+      - name: 部署到腾讯云服务器
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.TENCENT_HOST }}
+          username: ${{ secrets.TENCENT_USERNAME }}
+          key: ${{ secrets.TENCENT_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.TENCENT_SSH_PORT }}
+          script: |
+            # 创建项目目录（如果不存在）
+            mkdir -p /var/www/xhs-covergen
+            
+            # 清理临时目录
+            rm -rf /tmp/xhs-covergen
+            mkdir -p /tmp/xhs-covergen
+
+      - name: 打包项目文件
+        run: |
+          tar -czf xhs-covergen.tar.gz .next public package.json pnpm-lock.yaml next.config.ts start-app.sh
+
+      - name: 上传到服务器
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.TENCENT_HOST }}
+          username: ${{ secrets.TENCENT_USERNAME }}
+          key: ${{ secrets.TENCENT_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.TENCENT_SSH_PORT }}
+          source: "xhs-covergen.tar.gz"
+          target: "/tmp/xhs-covergen"
+
+      - name: 部署应用
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.TENCENT_HOST }}
+          username: ${{ secrets.TENCENT_USERNAME }}
+          key: ${{ secrets.TENCENT_SSH_PRIVATE_KEY }}
+          port: ${{ secrets.TENCENT_SSH_PORT }}
+          script: |
+            cd /tmp/xhs-covergen
+            tar -xzf xhs-covergen.tar.gz -C /var/www/xhs-covergen
+            cd /var/www/xhs-covergen
+            
+            # 设置权限
+            chmod +x start-app.sh
+            
+            # 安装依赖
+            export PATH="/usr/local/node/bin:$PATH"
+            pnpm install --prod
+            
+            # 设置环境变量
+            cp /var/www/xhs-covergen-env/.env /var/www/xhs-covergen/.env
+            
+            # 使用启动脚本启动应用
+            ./start-app.sh
+            
+            # 清理临时文件
+            rm -rf /tmp/xhs-covergen 

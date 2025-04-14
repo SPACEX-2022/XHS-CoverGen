@@ -98,3 +98,29 @@ pnpm build
 ---
 
 项目基于[Next.js SaaS Starter](https://vercel.com/templates/next.js/next-js-saas-starter)模板开发。
+
+## 部署说明
+
+本项目使用GitHub Actions自动部署到腾讯云服务器。
+
+### 配置GitHub Secrets
+
+在GitHub仓库的Settings > Secrets > Actions中添加以下secrets：
+
+- `TENCENT_HOST`: 腾讯云服务器IP地址
+- `TENCENT_USERNAME`: SSH用户名
+- `TENCENT_SSH_PRIVATE_KEY`: SSH私钥内容
+- `TENCENT_SSH_PORT`: SSH端口（默认22）
+- `NEXT_PUBLIC_APP_URL`: 应用URL
+- `DATABASE_URL`: 数据库连接URL
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`: Stripe公钥
+- `STRIPE_SECRET_KEY`: Stripe密钥
+- `DEEPSEEK_API_KEY`: DeepSeek API密钥
+
+### 手动触发部署
+
+你可以在GitHub仓库的Actions选项卡中手动触发部署工作流。
+
+### 自动部署
+
+当代码推送到main分支时，GitHub Actions将自动触发部署流程。
