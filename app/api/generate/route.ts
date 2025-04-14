@@ -159,11 +159,14 @@ export async function POST(request: NextRequest) {
         omitBackground: false
       });
       
-      // 图片保存到public/temp目录，文件名是当前时间戳
+      // 图片保存到public/temp目录，文件名是当前时间戳加随机数
       const timestamp = Date.now();
-      const filename = `${timestamp}.png`;
+      const random = Math.random().toString(36).substring(2, 15);
+      const filename = `${timestamp}-${random}.png`;
       const imagePath = path.join(tempDir, filename);
       fs.writeFileSync(imagePath, image);
+      // 确保文件权限 777
+      fs.chmodSync(imagePath, 0o777);
       
       // 返回可以从浏览器访问的URL路径
       const imageUrl = `/temp/${filename}`;
